@@ -1,8 +1,11 @@
+import datetime
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.utils import weight_norm
 import math
+
 
 def compared_version(ver1, ver2):
     """
@@ -27,6 +30,7 @@ def compared_version(ver1, ver2):
         return False
     else:
         return True
+
 
 class PositionalEmbedding(nn.Module):
     def __init__(self, d_model, max_len=5000):
@@ -84,7 +88,7 @@ class FixedEmbedding(nn.Module):
 
 
 class TemporalEmbedding(nn.Module):
-    def __init__(self, d_model, embed_type='fixed', freq='h'):
+    def __init__(self, d_model, embed_type, freq):
         super(TemporalEmbedding, self).__init__()
 
         minute_size = 60
@@ -95,7 +99,7 @@ class TemporalEmbedding(nn.Module):
         # year_size = 5
 
         Embed = FixedEmbedding if embed_type == 'fixed' else nn.Embedding
-        if freq == 't':
+        if freq % datetime.timedelta(hours=1) > datetime.timedelta(0):
             self.minute_embed = Embed(minute_size, d_model)
         self.hour_embed = Embed(hour_size, d_model)
         self.weekday_embed = Embed(weekday_size, d_model)
@@ -106,7 +110,6 @@ class TemporalEmbedding(nn.Module):
     def forward(self, x):
         x = x.long()
 
-
         minute_x = self.minute_embed(x[:, :, 4]) if hasattr(self, 'minute_embed') else 0.
         hour_x = self.hour_embed(x[:, :, 3])
         weekday_x = self.weekday_embed(x[:, :, 2])
@@ -115,11 +118,12 @@ class TemporalEmbedding(nn.Module):
         # year_x = x[:,:,0] - 2022
         # year_x = self.year_embed(year_x)
 
-        return hour_x + weekday_x + day_x + month_x + minute_x # + year_x
+        return hour_x + weekday_x + day_x + month_x + minute_x  # + year_x
 
 
 class TimeFeatureEmbedding(nn.Module):
-    def __init__(self, d_model, embed_type='timeF', freq='h'):
+    def __init__(self, d_model, embed_type, freq):
+        raise NotImplementedError("This module is not adapted for the specific project for which Autoformer is used.")
         super(TimeFeatureEmbedding, self).__init__()
 
         # freq_map = {'h': 4, 't': 5, 's': 6, 'm': 1, 'a': 1, 'w': 2, 'd': 3, 'b': 3}
@@ -132,7 +136,7 @@ class TimeFeatureEmbedding(nn.Module):
 
 
 class DataEmbedding(nn.Module):
-    def __init__(self, c_in, d_model, embed_type='fixed', freq='h', dropout=0.1):
+    def __init__(self, c_in, d_model, embed_type, freq, dropout):
         super(DataEmbedding, self).__init__()
 
         self.value_embedding = TokenEmbedding(c_in=c_in, d_model=d_model)
@@ -148,7 +152,7 @@ class DataEmbedding(nn.Module):
 
 
 class DataEmbedding_wo_pos(nn.Module):
-    def __init__(self, c_in, d_model, embed_type='fixed', freq='h', dropout=0.1):
+    def __init__(self, c_in, d_model, embed_type, freq, dropout):
         super(DataEmbedding_wo_pos, self).__init__()
 
         self.value_embedding = TokenEmbedding(c_in=c_in, d_model=d_model)
