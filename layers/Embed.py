@@ -136,9 +136,9 @@ class TimeFeatureEmbedding(nn.Module):
 
 
 class NodeEmbeddingEmbedding(nn.Module):
-    def __init__(self, d_model, d_ne):
-        super(self).__init__()
-        self.embed = nn.Linear(d_ne, d_model)
+    def __init__(self, d_model, ne_dimensions):
+        super().__init__()
+        self.embed = nn.Linear(ne_dimensions, d_model)
 
     def forward(self, x):
         return self.embed(x)
@@ -146,7 +146,7 @@ class NodeEmbeddingEmbedding(nn.Module):
 
 
 class DataEmbedding(nn.Module):
-    def __init__(self, c_in, d_model, embed_type, freq, dropout, d_ne):
+    def __init__(self, c_in, d_model, embed_type, freq, dropout, ne_dimensions):
         super(DataEmbedding, self).__init__()
 
         self.value_embedding = TokenEmbedding(c_in=c_in, d_model=d_model)
@@ -154,8 +154,8 @@ class DataEmbedding(nn.Module):
         self.temporal_embedding = TemporalEmbedding(d_model=d_model, embed_type=embed_type,
                                                     freq=freq) if embed_type != 'timeF' else TimeFeatureEmbedding(
             d_model=d_model, embed_type=embed_type, freq=freq)
-        if d_ne is not None:
-            self.node_embedding_embedding = NodeEmbeddingEmbedding(d_model=d_model, d_ne=d_ne)
+        if ne_dimensions is not None:
+            self.node_embedding_embedding = NodeEmbeddingEmbedding(d_model=d_model, ne_dimensions=ne_dimensions)
         else:
             self.node_embedding_embedding = None
         self.dropout = nn.Dropout(p=dropout)
@@ -163,12 +163,12 @@ class DataEmbedding(nn.Module):
     def forward(self, x, x_mark, node_embedding=None):
         x = self.value_embedding(x) + self.temporal_embedding(x_mark) + self.position_embedding(x)
         if node_embedding is not None:
-            x += self.node_embedding_embedding(node_embedding).repeat(1,x.shape[1],1)
+            x += self.node_embedding_embedding(node_embedding) # .repeat(1,x.shape[1],1)
         return self.dropout(x)
 
 
 class DataEmbedding_wo_pos(nn.Module):
-    def __init__(self, c_in, d_model, embed_type, freq, dropout, d_ne):
+    def __init__(self, c_in, d_model, embed_type, freq, dropout, ne_dimensions):
         super(DataEmbedding_wo_pos, self).__init__()
 
         self.value_embedding = TokenEmbedding(c_in=c_in, d_model=d_model)
@@ -176,8 +176,8 @@ class DataEmbedding_wo_pos(nn.Module):
         self.temporal_embedding = TemporalEmbedding(d_model=d_model, embed_type=embed_type,
                                                     freq=freq) if embed_type != 'timeF' else TimeFeatureEmbedding(
             d_model=d_model, embed_type=embed_type, freq=freq)
-        if d_ne is not None:
-            self.node_embedding_embedding = NodeEmbeddingEmbedding(d_model=d_model, d_ne=d_ne)
+        if ne_dimensions is not None:
+            self.node_embedding_embedding = NodeEmbeddingEmbedding(d_model=d_model, ne_dimensions=ne_dimensions)
         else:
             self.node_embedding_embedding = None
         self.dropout = nn.Dropout(p=dropout)
@@ -185,5 +185,5 @@ class DataEmbedding_wo_pos(nn.Module):
     def forward(self, x, x_mark, node_embedding=None):
         x = self.value_embedding(x) + self.temporal_embedding(x_mark)
         if node_embedding is not None:
-            x += torch.self.node_embedding_embedding(node_embedding).repeat(1,x.shape[1],1)
+            x += self.node_embedding_embedding(node_embedding) # .repeat(1,x.shape[1],1)
         return self.dropout(x)
