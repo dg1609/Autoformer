@@ -16,12 +16,13 @@ class Model(nn.Module):
         super(Model, self).__init__()
         self.pred_len = configs.pred_len
         self.output_attention = configs.output_attention
+        self.ne_dimensions = configs.ne_dimensions
 
         # Embedding
         self.enc_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.embed, configs.freq,
-                                           configs.dropout)
+                                           configs.dropout, ne_dimensions=self.ne_dimensions)
         self.dec_embedding = DataEmbedding(configs.dec_in, configs.d_model, configs.embed, configs.freq,
-                                           configs.dropout)
+                                           configs.dropout, ne_dimensions=self.ne_dimensions)
 
         # Encoder
         self.encoder = Encoder(
@@ -66,12 +67,12 @@ class Model(nn.Module):
         )
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec,
-                enc_self_mask=None, dec_self_mask=None, dec_enc_mask=None):
+                enc_self_mask=None, dec_self_mask=None, dec_enc_mask=None, node_embedding=None):
 
-        enc_out = self.enc_embedding(x_enc, x_mark_enc)
+        enc_out = self.enc_embedding(x_enc, x_mark_enc, node_embedding)
         enc_out, attns = self.encoder(enc_out, attn_mask=enc_self_mask)
 
-        dec_out = self.dec_embedding(x_dec, x_mark_dec)
+        dec_out = self.dec_embedding(x_dec, x_mark_dec, node_embedding)
         dec_out = self.decoder(dec_out, enc_out, x_mask=dec_self_mask, cross_mask=dec_enc_mask)
 
         if self.output_attention:

@@ -8,8 +8,12 @@ import numpy as np
 import math
 from math import sqrt
 from utils.masking import TriangularCausalMask, ProbMask
-from reformer_pytorch import LSHSelfAttention
+# from reformer_pytorch import LSHSelfAttention
 import os
+
+class LSHSelfAttention:
+    def __init__(self):
+        raise NotImplementedError("If you want to use Reformer, remove this dummy class and import LSHSelfAttention like: from reformer_pytorch import LSHSelfAttention")
 
 
 class FullAttention(nn.Module):

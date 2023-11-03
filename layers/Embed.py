@@ -163,7 +163,7 @@ class DataEmbedding(nn.Module):
     def forward(self, x, x_mark, node_embedding=None):
         x = self.value_embedding(x) + self.temporal_embedding(x_mark) + self.position_embedding(x)
         if node_embedding is not None:
-            x += self.node_embedding_embedding(node_embedding) # .repeat(1,x.shape[1],1)
+            x += self.node_embedding_embedding(node_embedding)[:, None, :]
         return self.dropout(x)
 
 
