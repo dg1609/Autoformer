@@ -17,12 +17,13 @@ class Model(nn.Module):
         self.pred_len = configs.pred_len
         self.output_attention = configs.output_attention
         self.ne_dimensions = configs.ne_dimensions
+        self.features = configs.features
 
         # Embedding
         self.enc_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.embed, configs.freq,
-                                           configs.dropout, ne_dimensions=self.ne_dimensions)
+                                           configs.dropout, ne_dimensions=self.ne_dimensions, features=self.features)
         self.dec_embedding = DataEmbedding(configs.dec_in, configs.d_model, configs.embed, configs.freq,
-                                           configs.dropout, ne_dimensions=self.ne_dimensions)
+                                           configs.dropout, ne_dimensions=self.ne_dimensions, features=self.features)
 
         # Encoder
         self.encoder = Encoder(

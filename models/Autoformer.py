@@ -20,6 +20,7 @@ class Model(nn.Module):
         self.pred_len = configs.pred_len
         self.output_attention = configs.output_attention
         self.ne_dimensions = configs.ne_dimensions
+        self.features = configs.features
 
         # Decomp
         kernel_size = configs.moving_avg
@@ -29,9 +30,9 @@ class Model(nn.Module):
         # The series-wise connection inherently contains the sequential information.
         # Thus, we can discard the position embedding of transformers.
         self.enc_embedding = DataEmbedding_wo_pos(configs.enc_in, configs.d_model, configs.embed, configs.freq,
-                                                  configs.dropout, ne_dimensions=self.ne_dimensions)
+                                                  configs.dropout, ne_dimensions=self.ne_dimensions, features=self.features)
         self.dec_embedding = DataEmbedding_wo_pos(configs.dec_in, configs.d_model, configs.embed, configs.freq,
-                                                  configs.dropout, ne_dimensions=self.ne_dimensions)
+                                                  configs.dropout, ne_dimensions=self.ne_dimensions, features=self.features)
 
         # Encoder
         self.encoder = Encoder(
