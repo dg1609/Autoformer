@@ -57,7 +57,7 @@ class TokenEmbedding(nn.Module):
         super(TokenEmbedding, self).__init__()
         padding = 1 if compared_version(torch.__version__, '1.5.0') else 2
         self.tokenConv = nn.Conv1d(in_channels=c_in, out_channels=d_model,
-                                   kernel_size=3, padding=padding, padding_mode='circular', bias=False)
+                                   kernel_size=3, padding=padding, padding_mode='replicate', bias=False)
         for m in self.modules():
             if isinstance(m, nn.Conv1d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='leaky_relu')
@@ -99,12 +99,12 @@ class TemporalEmbedding(nn.Module):
         # year_size = 5
 
         Embed = FixedEmbedding if embed_type == 'fixed' else nn.Embedding
-        if freq % datetime.timedelta(hours=1) > datetime.timedelta(0):
-            self.minute_embed = Embed(minute_size, d_model)
+        # if freq % datetime.timedelta(hours=1) > datetime.timedelta(0):
+        #     self.minute_embed = Embed(minute_size, d_model)
         self.hour_embed = Embed(hour_size, d_model)
         self.weekday_embed = Embed(weekday_size, d_model)
-        self.day_embed = Embed(day_size, d_model)
-        self.month_embed = Embed(month_size, d_model)
+        # self.day_embed = Embed(day_size, d_model)
+        # self.month_embed = Embed(month_size, d_model)
         # self.year_embed = Embed(year_size, d_model)
 
     def forward(self, x):
@@ -118,7 +118,7 @@ class TemporalEmbedding(nn.Module):
         # year_x = x[:,:,0] - 2022
         # year_x = self.year_embed(year_x)
 
-        return hour_x + weekday_x + day_x + month_x + minute_x  # + year_x
+        return hour_x + weekday_x # + day_x + month_x + minute_x  # + year_x
 
 
 class TimeFeatureEmbedding(nn.Module):
