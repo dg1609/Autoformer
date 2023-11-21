@@ -18,6 +18,8 @@ class Model(nn.Module):
         self.output_attention = configs.output_attention
         self.ne_dimensions = configs.ne_dimensions
         self.features = configs.features
+        self.seq_len = configs.seq_len
+        self.label_len = configs.label_len
 
         # Embedding
         self.enc_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.embed, configs.freq,
@@ -73,7 +75,7 @@ class Model(nn.Module):
         enc_out = self.enc_embedding(x_enc, x_mark_enc, node_embedding)
         enc_out, attns = self.encoder(enc_out, attn_mask=enc_self_mask)
 
-        dec_out = self.dec_embedding(x_dec, x_mark_dec, node_embedding)
+        dec_out = self.dec_embedding(x_dec, x_mark_dec, node_embedding, self.seq_len-self.label_len)
         dec_out = self.decoder(dec_out, enc_out, x_mask=dec_self_mask, cross_mask=dec_enc_mask)
 
         if self.output_attention:
