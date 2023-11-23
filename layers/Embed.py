@@ -55,9 +55,9 @@ class PositionalEmbedding(nn.Module):
 class TokenEmbedding(nn.Module):
     def __init__(self, c_in, d_model):
         super(TokenEmbedding, self).__init__()
-        padding = 1 if compared_version(torch.__version__, '1.5.0') else 2
+        # padding = 1 if compared_version(torch.__version__, '1.5.0') else 2
         self.tokenConv = nn.Conv1d(in_channels=c_in, out_channels=d_model,
-                                   kernel_size=1, padding=padding, padding_mode='replicate', bias=False)
+                                   kernel_size=1, padding=0, padding_mode='replicate', bias=False)
         for m in self.modules():
             if isinstance(m, nn.Conv1d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='leaky_relu')
