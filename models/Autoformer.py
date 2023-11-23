@@ -19,7 +19,7 @@ class Model(nn.Module):
         self.label_len = configs.label_len
         self.pred_len = configs.pred_len
         self.output_attention = configs.output_attention
-        self.ne_dimensions = configs.ne_dimensions
+        self.ne_dimensions = configs.ne_dimensions if "ne_dimensions" in configs.keys() else None
         self.features = configs.features
 
         # Decomp

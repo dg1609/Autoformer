@@ -16,7 +16,7 @@ class Model(nn.Module):
         super(Model, self).__init__()
         self.pred_len = configs.pred_len
         self.output_attention = configs.output_attention
-        self.ne_dimensions = configs.ne_dimensions
+        self.ne_dimensions = configs.ne_dimensions if "ne_dimensions" in configs.keys() else None
         self.features = configs.features
         self.seq_len = configs.seq_len
         self.label_len = configs.label_len
